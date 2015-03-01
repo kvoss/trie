@@ -12,7 +12,6 @@ class Trie():
             parent = node
             node = node.setdefault(c, dict())
         node['value'] = val
-        node['parent'] = parent
 
     def get(self, key):
         node = self.tree
@@ -26,12 +25,17 @@ class Trie():
     def remove(self, key):
         if not self.has(key): return
 
+        node = self.get(key)
+        del node['value']
+
         rprefixes = reversed([key[:l] for l in range(1,len(key)+1)])
+        delk = None
         for rp in rprefixes:
             node = self.get(rp)
-            if rp == key: del node['value']
-            if len(node.keys()) > 0:
-                return
+            if delk: del node[delk]
+            if len(node.keys()) > 0: return
+            else: delk = rp[-1]
+        del self.tree[delk]
 
     def has(self, key):
         node = self.get(key)
@@ -46,10 +50,13 @@ def main():
     t = Trie()
     t.insert('ann', 24)
     t.insert('aneta', 25)
+    t.insert('monic', 25)
     print t
     assert t.has('ann')
     assert t.has('anna')==False
 
+    t.remove('aneta')
+    print t
     t.remove('ann')
     print t
 
