@@ -1,5 +1,12 @@
+""" Trie in Python based on dict
 
-class Trie():
+author: K.Voss
+"""
+
+
+class Trie(object):
+    MAGIC_KEY = 'value'
+
     def __init__(self):
         self.tree = dict()
 
@@ -11,22 +18,21 @@ class Trie():
         for c in key:
             parent = node
             node = node.setdefault(c, dict())
-        node['value'] = val
+        node[self.MAGIC_KEY] = val
 
     def get(self, key):
         node = self.tree
         for c in key:
-            try:
-                node = node[c]
-            except KeyError:
-                node = None
+            node = node.get(c)
+            if not node:
+                break
         return node
 
     def remove(self, key):
         if not self.has(key): return
 
         node = self.get(key)
-        del node['value']
+        del node[self.MAGIC_KEY]
 
         rprefixes = reversed([key[:l] for l in range(1,len(key)+1)])
         delk = None
@@ -39,27 +45,28 @@ class Trie():
 
     def has(self, key):
         node = self.get(key)
-        if not node:
-            return False
-        elif 'value' in node.keys():
+        if node and self.MAGIC_KEY in node.keys():
             return True
-        else:
-            return False
+        return False
 
-def main():
-    t = Trie()
-    t.insert('ann', 24)
-    t.insert('aneta', 25)
-    t.insert('monic', 25)
-    print t
-    assert t.has('ann')
-    assert t.has('anna')==False
+import unittest
+class TestTrie(unittest.TestCase):
+    def test_ops(self):
+        t = Trie()
+        t.insert('ann', 24)
+        t.insert('aneta', 25)
+        t.insert('monica', 25)
 
-    t.remove('aneta')
-    print t
-    t.remove('ann')
-    print t
+        # self.assertEqual(25, t.get('an'))
+
+        self.assertTrue(t.has('ann'))
+        self.assertTrue(not t.has('anna'))
+
+        t.remove('aneta')
+        self.assertTrue(not t.has('aneta'))
+        t.remove('ann')
+        self.assertTrue(not t.has('ann'))
 
 if __name__ == '__main__':
-    main()
+    unittest.main()
 
